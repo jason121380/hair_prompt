@@ -3,6 +3,12 @@ document.addEventListener('DOMContentLoaded', function() {
   function updateVersionNumber() {
     const versionElement = document.getElementById('version-number');
     if (versionElement) {
+      // 如果HTML中已經設定了固定版本號，則不自動更新
+      if (versionElement.textContent === '1.1.25.0516') {
+        // 保留HTML中設定的版本號
+        return;
+      }
+      
       const now = new Date();
       const year = now.getFullYear().toString().slice(-2); // 取年份後兩位
       const month = (now.getMonth() + 1).toString().padStart(2, '0'); // 月份補零
@@ -16,6 +22,31 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // 執行更新版本號
   updateVersionNumber();
+  
+  // 搜尋功能
+  const searchInput = document.getElementById('search-input');
+  const promptCards = document.querySelectorAll('.prompt-card');
+  const tagButtons = document.querySelectorAll('.tag-btn');
+  
+  // 搜尋功能實現
+  searchInput.addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase().trim();
+    const selectedTag = document.querySelector('.tag-btn.selected').textContent.replace(/\d+/g, '').trim();
+    
+    promptCards.forEach(card => {
+      const title = card.querySelector('.prompt-title').textContent.toLowerCase();
+      const content = card.querySelector('.prompt-content p').textContent.toLowerCase();
+      const tag = card.querySelector('.prompt-tag').textContent;
+      const matchesSearch = title.includes(searchTerm) || content.includes(searchTerm);
+      
+      // 同時考慮搜尋詞和已選擇的標籤
+      if (selectedTag === '全部') {
+        card.style.display = matchesSearch ? 'flex' : 'none';
+      } else {
+        card.style.display = (matchesSearch && tag === selectedTag) ? 'flex' : 'none';
+      }
+    });
+  });
   
   // Pro 功能使用計數器和限制 - 暫時移除限制
   const MAX_FREE_PRO_USES = 9999; // 設置為極高數值，實際上移除限制
@@ -36,8 +67,6 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   // 標籤篩選功能
-  const tagButtons = document.querySelectorAll('.tag-btn');
-  const promptCards = document.querySelectorAll('.prompt-card');
   
   // 計算各標籤的數量並更新標籤按鈕
   function updateTagCounts() {
@@ -83,6 +112,44 @@ document.addEventListener('DOMContentLoaded', function() {
   // 初始執行一次計數更新
   updateTagCounts();
   
+  // 修改標籤點擊事件，使其與搜尋功能協同工作
+  tagButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      // 移除所有按鈕的 selected 類別
+      tagButtons.forEach(btn => btn.classList.remove('selected'));
+      
+      // 為當前按鈕添加 selected 類別
+      this.classList.add('selected');
+      
+      const selectedTag = this.textContent.replace(/\d+/g, '').trim();
+      const searchTerm = searchInput.value.toLowerCase().trim();
+      
+      // 如果選擇「全部」，則顯示所有卡片
+      if (selectedTag === '全部') {
+        promptCards.forEach(card => {
+          const title = card.querySelector('.prompt-title').textContent.toLowerCase();
+          const content = card.querySelector('.prompt-content p').textContent.toLowerCase();
+          const matchesSearch = searchTerm === '' || title.includes(searchTerm) || content.includes(searchTerm);
+          card.style.display = matchesSearch ? 'flex' : 'none';
+        });
+      } else {
+        // 否則只顯示匹配標籤和搜尋詞的卡片
+        promptCards.forEach(card => {
+          const cardTag = card.querySelector('.prompt-tag').textContent;
+          const title = card.querySelector('.prompt-title').textContent.toLowerCase();
+          const content = card.querySelector('.prompt-content p').textContent.toLowerCase();
+          const matchesSearch = searchTerm === '' || title.includes(searchTerm) || content.includes(searchTerm);
+          
+          if (cardTag === selectedTag && matchesSearch) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      }
+    });
+  });
+  
   // 進階Pro提示詞資料
   const proPrompts = {
     "老客戶回流話術": "角色：你是一位資深美髮沙龍客戶管理專家\n任務：請幫我設計一段私訊話術\n內容：針對 3-6 個月未回店的老客戶，包含：\n- 問候語\n- 關心客戶近況\n- 提及上次服務內容\n- 介紹新服務或產品\n- 提供專屬回流優惠方案\n風格：誠懇、溫暖但不過度熱情，展現專業關懷\n格式：字數控制在 200 字內，分段清晰，最後附帶一句引導預約的話",
@@ -90,6 +157,20 @@ document.addEventListener('DOMContentLoaded', function() {
     "生日月客戶優惠訊息": "角色：你是一位美髮沙龍行銷專員\n任務：設計一則生日月份專屬優惠訊息\n內容：\n- 溫馨的生日祝福\n- 針對護髮或染燙服務的專屬優惠\n- 優惠使用期限與條件\n- 預約提醒\n風格：充滿誠意、溫暖友善、讓客人感受到重視\n格式：100-150 字，附帶一個吸引人的標題",
     
     "網路新客服務流程": "角色：你是美髮行業的客戶服務流程設計專家\n任務：設計一套網路新客從初次諮詢到服務完成的標準流程\n內容：包含以下階段的具體話術和操作指南：\n- 初次諮詢回覆\n- 預約確認流程\n- 首次到店迎接流程\n- 需求確認與建議\n- 服務過程中的互動要點\n- 服務完成後的回饋收集\n- 後續追蹤規劃\n風格：專業、貼心、顧客導向\n格式：分階段呈現，每個階段附帶 1-2 個實用話術範例",
+    
+    "VIP客戶專屬關懷計劃": "角色：你是高端美髮沙龍的VIP客戶關係管理專家\n任務：設計一套VIP客戶專屬關懷計劃\n內容：針對高消費、高頻率的VIP客戶，包含：\n- VIP客戶分級標準（消費金額、頻率等指標）\n- 每個等級專屬權益與優惠\n- 生日、節慶專屬禮遇設計\n- 專屬預約通道與彈性服務\n- 新服務/產品優先體驗機制\n- 專屬溝通頻率與內容規劃\n- 專屬設計師一對一關係維護策略\n風格：高端、重視、專業、細緻\n格式：300-350字，條理分明，具體可執行",
+    
+    "客戶分類管理策略": "角色：你是美髮沙龍客戶數據分析與管理專家\n任務：設計一套客戶分類管理策略\n內容：\n- 客戶分類標準（如消費金額、頻率、忠誠度等指標）\n- 建議的客戶分層（如鑽石、金卡、銀卡、潛力客等）\n- 各層級客戶的特點與價值分析\n- 各層級客戶的溝通頻率與方式建議\n- 各層級客戶專屬行銷策略與優惠設計\n- 客戶升級機制與激勵方案\n- 客戶數據收集與分析方法\n風格：數據導向、策略性、實用性高\n格式：分層級清晰呈現，包含實施建議與預期效果",
+    
+    "節慶祝賀訊息": "角色：你是美髮沙龍的節慶行銷專家\n任務：設計全年度主要節慶的客戶祝賀訊息\n內容：針對以下節慶設計訊息：\n- 農曆新年\n- 情人節\n- 婦女節/母親節\n- 父親節\n- 中秋節\n- 聖誕節/跨年\n每個節慶訊息需包含：\n- 應景的祝福語\n- 巧妙連結美髮或形象相關話題\n- 節慶專屬優惠或活動\n- 預約建議\n風格：溫馨、應景、不做作、品牌調性一致\n格式：每則訊息100-150字，附帶適合的標題",
+    
+    "客戶預約提醒系統": "角色：你是美髮沙龍的客戶體驗優化專家\n任務：設計客戶預約全流程的提醒訊息系統\n內容：針對以下時間點設計訊息模板：\n- 預約成功確認（含預約詳情、注意事項）\n- 預約前3天提醒\n- 預約前1天提醒\n- 預約當日早上提醒\n- 服務完成後的感謝訊息\n- 服務後7天的關懷追蹤\n- 服務後30天的再次預約建議\n每個模板需包含：\n- 適當的問候語\n- 必要資訊清晰呈現\n- 預約變更/取消指引（如適用）\n風格：專業、簡潔、友善、不打擾\n格式：每則訊息控制在100字內，重點突出",
+    
+    "客戶髮型紀錄卡設計": "角色：你是美髮沙龍的數位化管理顧問\n任務：設計一份數位化客戶髮型紀錄系統\n內容：設計一套完整的客戶髮型檔案，包含：\n- 基本客戶資料區塊（姓名、聯絡方式、生日等）\n- 髮質分析區塊（髮質類型、頭皮狀況、特殊狀況等）\n- 歷史服務紀錄區塊（日期、服務項目、金額等）\n- 技術配方紀錄區塊（染劑配方、燙髮藥水選用等）\n- 使用產品紀錄區塊（沙龍護理、居家護理推薦等）\n- 設計師專業建議區塊（造型建議、注意事項等）\n- 客戶偏好紀錄區塊（喜好風格、禁忌等）\n- 下次預約建議區塊（建議時間、項目等）\n風格：專業、系統化、易於填寫與查閱\n格式：區塊分明，設計成表格或數位化介面形式",
+    
+    "推薦新客獎勵計畫": "角色：你是美髮沙龍的客戶拓展策略專家\n任務：設計一套「老客戶推薦新客人」的獎勵計畫\n內容：\n- 計畫名稱與核心賣點\n- 推薦機制設計（如推薦碼、實體推薦卡等）\n- 推薦人獎勵內容（如折扣、積分、免費服務等）\n- 被推薦人優惠內容（首次體驗特惠等）\n- 多層次獎勵機制（如推薦越多獎勵越高）\n- 推薦追蹤與兌換流程\n- 計畫宣傳方式建議\n- 效果評估指標\n風格：激勵性、互惠互利、容易理解\n格式：300字左右，結構清晰，重點突出，附帶簡短宣傳語",
+    
+    "流失客戶挽回策略": "角色：你是美髮沙龍的客戶維繫與挽回專家\n任務：設計一套流失客戶挽回策略\n內容：針對6個月以上未回店的客戶，包含：\n- 流失客戶分類方法（如消費金額、頻率、流失時間等）\n- 流失原因分析與對應策略\n- 階段性接觸計劃（3個月、6個月、1年以上）\n- 每個階段的訊息內容與語氣建議\n- 專屬回流優惠方案設計（依流失時間與客戶價值）\n- 回流後的強化維繫計劃\n- 二次流失預防機制\n- 效果追蹤與調整方法\n風格：策略性、系統化、重視數據分析\n格式：350字左右，分階段清晰呈現，包含實際訊息範例",
     
     "新客開發加購護髮話術": "角色：你是專業美髮顧問與銷售技巧專家\n任務：設計針對初次來店客戶的護髮加購話術\n內容：\n- 髮質評估導入語\n- 客製化護髮需求分析\n- 解釋護髮對新染燙髮質的重要性\n- 介紹 2-3 種適合的護髮方案\n- 提及首次體驗的專屬優惠\n風格：親切、專業、教育性質為主，避免過度推銷感\n格式：對話形式，包含應對客人可能提出的疑慮，總長不超過 250 字",
     
@@ -133,35 +214,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     "IG 快問快答活動設計": "角色：你是美髮社群互動專家\n任務：設計一個「這個髮型適合你嗎？」的限時快問快答活動\n內容：\n- 引人注目的活動介紹與參與方式\n- 3-5 個關於臉型、髮質、生活習慣的診斷問題\n- 根據答案提供的髮型推薦邏輯\n- 互動回覆模板與引導私訊的話術\n- 參與者可獲得的專屬優惠\n風格：互動性強、個人化、專業中帶有趣味\n格式：問題簡短明確，回答選項清晰，整體流程順暢，適合限時動態呈現"
   };
-  
-  tagButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      // 移除所有按鈕的 selected 類別
-      tagButtons.forEach(btn => btn.classList.remove('selected'));
-      
-      // 為當前按鈕添加 selected 類別
-      this.classList.add('selected');
-      
-      const selectedTag = this.textContent.replace(/\d+/g, '').trim();
-      
-      // 如果選擇「全部」，則顯示所有卡片
-      if (selectedTag === '全部') {
-        promptCards.forEach(card => {
-          card.style.display = 'flex';
-        });
-      } else {
-        // 否則只顯示匹配標籤的卡片
-        promptCards.forEach(card => {
-          const cardTag = card.querySelector('.prompt-tag').textContent;
-          if (cardTag === selectedTag) {
-            card.style.display = 'flex';
-          } else {
-            card.style.display = 'none';
-          }
-        });
-      }
-    });
-  });
   
   // 複製提示詞功能
   const copyButtons = document.querySelectorAll('.copy-btn');

@@ -50,6 +50,29 @@ main {
   font-style: italic;
   margin-top: 8px;
 }
+
+.search-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.search-box {
+  width: 100%;
+  max-width: 500px;
+  padding: 12px 20px;
+  border: 1px solid var(--color-light-gray);
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.search-box:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px rgba(26, 75, 140, 0.2);
+}
+
 .filters {
   display: flex;
   justify-content: center;
@@ -362,4 +385,19 @@ main {
 
 .modal-button:hover {
   background-color: #e64a19;
+}
+
+/* 頁尾樣式 */
+.page-footer {
+  text-align: center;
+  margin-top: 60px;
+  padding-top: 30px;
+  border-top: 1px solid var(--color-light-gray);
+}
+
+.page-footer .version {
+  color: var(--color-gray);
+  font-size: 0.9rem;
+  font-style: italic;
+  margin: 0;
 }
