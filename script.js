@@ -17,39 +17,17 @@ document.addEventListener('DOMContentLoaded', function() {
   // 執行更新版本號
   updateVersionNumber();
   
-  // Pro 功能使用計數器和限制
-  const MAX_FREE_PRO_USES = 3;
+  // Pro 功能使用計數器和限制 - 暫時移除限制
+  const MAX_FREE_PRO_USES = 9999; // 設置為極高數值，實際上移除限制
   let proUsageCount = 0;
   const countElement = document.getElementById('pro-count');
   const limitModal = document.getElementById('limit-modal');
   const closeModalBtn = document.getElementById('close-modal');
   
-  // 從 localStorage 恢復使用次數（如果存在）
-  if (localStorage.getItem('proUsageCount')) {
-    proUsageCount = parseInt(localStorage.getItem('proUsageCount'));
-    countElement.textContent = proUsageCount;
-  }
-  
-  // 更新使用次數的函數
+  // 更新使用次數的函數 - 暫時永遠返回 true
   function updateProUsageCount() {
-    if (proUsageCount < MAX_FREE_PRO_USES) {
-      proUsageCount++;
-      countElement.textContent = proUsageCount;
-      
-      // 保存到 localStorage
-      localStorage.setItem('proUsageCount', proUsageCount);
-      
-      // 如果達到限制，顯示彈窗
-      if (proUsageCount >= MAX_FREE_PRO_USES) {
-        limitModal.style.display = 'flex';
-      }
-      
-      return true; // 允許使用 Pro 功能
-    } else {
-      // 已超過限制，顯示彈窗
-      limitModal.style.display = 'flex';
-      return false; // 不允許使用 Pro 功能
-    }
+    // 無論如何都允許使用 Pro 功能
+    return true;
   }
   
   // 關閉彈窗的事件
