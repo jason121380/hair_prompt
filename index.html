@@ -11,11 +11,25 @@
     <script defer src="script.js"></script>
   </head>
   <body>
+    <!-- Pro 點擊計數器 -->
+    <div class="pro-counter">Pro 使用次數: <span id="pro-count">0</span>/3</div>
+    
+    <!-- 超出額度提示彈窗 -->
+    <div class="modal-overlay" id="limit-modal">
+      <div class="modal">
+        <div class="modal-title">您已超過免費版額度</div>
+        <div class="modal-content">
+          您已用完 3 次免費進階 Pro 功能的使用額度。請考慮升級至完整版以解鎖無限使用次數。
+        </div>
+        <button class="modal-button" id="close-modal">我知道了</button>
+      </div>
+    </div>
+    
     <main>
       <section class="page-header">
         <h1>ChatGPT 美髮指令大全</h1>
         <p class="description">本站提供各式精煉過的指令語句 (提示詞)，讓你充分發揮 ChatGPT 的強大功能</p>
-        <p class="author">version 1.0 by Jason 不定期更新</p>
+        <p class="author">version <span id="version-number">1.0</span> by Jason 不定期更新</p>
       </section>
       <section class="filters">
         <button class="tag-btn selected">全部</button>
