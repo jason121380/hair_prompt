@@ -48,16 +48,37 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   
-  // Pro 功能使用計數器和限制 - 暫時移除限制
-  const MAX_FREE_PRO_USES = 9999; // 設置為極高數值，實際上移除限制
+  // Pro 功能使用計數器和限制
+  const MAX_FREE_PRO_USES = 9999; // 設置為9999次，實質上取消使用限制
   let proUsageCount = 0;
   const countElement = document.getElementById('pro-count');
   const limitModal = document.getElementById('limit-modal');
   const closeModalBtn = document.getElementById('close-modal');
   
-  // 更新使用次數的函數 - 暫時永遠返回 true
+  // 更新使用次數的函數
   function updateProUsageCount() {
-    // 無論如何都允許使用 Pro 功能
+    // 從localStorage獲取已使用次數
+    const savedCount = localStorage.getItem('proUsageCount');
+    if (savedCount) {
+      proUsageCount = parseInt(savedCount);
+    }
+    
+    // 增加使用次數
+    proUsageCount++;
+    
+    // 更新顯示和localStorage
+    localStorage.setItem('proUsageCount', proUsageCount);
+    if (countElement) {
+      countElement.textContent = proUsageCount;
+      countElement.parentElement.style.display = 'block';
+    }
+    
+    // 暫時取消使用次數限制檢查
+    // if (proUsageCount > MAX_FREE_PRO_USES) {
+    //   limitModal.style.display = 'flex';
+    //   return false;
+    // }
+    
     return true;
   }
   
@@ -276,7 +297,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (proPrompts[cardTitle]) {
         const ribbon = document.createElement('div');
         ribbon.className = 'ribbon-pro';
-        ribbon.textContent = '進階Pro';
+        ribbon.textContent = '進階版提示詞';
         
         // 在卡片內添加ribbon
         card.appendChild(ribbon);
