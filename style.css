@@ -332,6 +332,7 @@ main {
 
 /* 右上角計數器樣式 */
 .pro-counter {
+  display: none !important; /* 完全隱藏計數器 */
   position: fixed;
   top: 15px;
   right: 15px;

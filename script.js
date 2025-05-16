@@ -48,37 +48,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
   
-  // Pro 功能使用計數器和限制
-  const MAX_FREE_PRO_USES = 9999; // 設置為9999次，實質上取消使用限制
-  let proUsageCount = 0;
-  const countElement = document.getElementById('pro-count');
+  // Pro 功能使用計數器和限制 - 移除計數功能，永遠允許使用
   const limitModal = document.getElementById('limit-modal');
   const closeModalBtn = document.getElementById('close-modal');
   
-  // 更新使用次數的函數
+  // 更新使用次數的函數 - 修改為永遠返回 true
   function updateProUsageCount() {
-    // 從localStorage獲取已使用次數
-    const savedCount = localStorage.getItem('proUsageCount');
-    if (savedCount) {
-      proUsageCount = parseInt(savedCount);
-    }
-    
-    // 增加使用次數
-    proUsageCount++;
-    
-    // 更新顯示和localStorage
-    localStorage.setItem('proUsageCount', proUsageCount);
-    if (countElement) {
-      countElement.textContent = proUsageCount;
-      countElement.parentElement.style.display = 'block';
-    }
-    
-    // 暫時取消使用次數限制檢查
-    // if (proUsageCount > MAX_FREE_PRO_USES) {
-    //   limitModal.style.display = 'flex';
-    //   return false;
-    // }
-    
+    // 直接返回 true，允許使用 Pro 功能
     return true;
   }
   
@@ -86,6 +62,11 @@ document.addEventListener('DOMContentLoaded', function() {
   closeModalBtn.addEventListener('click', function() {
     limitModal.style.display = 'none';
   });
+  
+  // 確保限制彈窗永遠不會顯示
+  if (limitModal) {
+    limitModal.style.display = 'none';
+  }
   
   // 標籤篩選功能
   
