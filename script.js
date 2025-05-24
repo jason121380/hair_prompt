@@ -49,24 +49,24 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   // Pro 功能使用計數器和限制 - 移除計數功能，永遠允許使用
-  const limitModal = document.getElementById('limit-modal');
-  const closeModalBtn = document.getElementById('close-modal');
+  // const limitModal = document.getElementById('limit-modal'); // Removed
+  // const closeModalBtn = document.getElementById('close-modal'); // Removed
   
-  // 更新使用次數的函數 - 修改為永遠返回 true
-  function updateProUsageCount() {
-    // 直接返回 true，允許使用 Pro 功能
-    return true;
-  }
+  // 更新使用次數的函數 - 修改為永遠返回 true // Removed
+  // function updateProUsageCount() { // Removed
+    // 直接返回 true，允許使用 Pro 功能 // Removed
+    // return true; // Removed
+  // } // Removed
   
-  // 關閉彈窗的事件
-  closeModalBtn.addEventListener('click', function() {
-    limitModal.style.display = 'none';
-  });
+  // 關閉彈窗的事件 // Removed
+  // closeModalBtn.addEventListener('click', function() { // Removed
+    // limitModal.style.display = 'none'; // Removed
+  // }); // Removed
   
-  // 確保限制彈窗永遠不會顯示
-  if (limitModal) {
-    limitModal.style.display = 'none';
-  }
+  // 確保限制彈窗永遠不會顯示 // Removed
+  // if (limitModal) { // Removed
+    // limitModal.style.display = 'none'; // Removed
+  // } // Removed
   
   // 標籤篩選功能
   
@@ -295,61 +295,55 @@ document.addEventListener('DOMContentLoaded', function() {
             contentElement.classList.remove('pro');
             contentElement.querySelector('p').textContent = copyBtn.getAttribute('data-prompt');
           } else {
-            // 嘗試切換到 Pro 模式，需要檢查使用次數
-            if (updateProUsageCount()) {
-              // 允許切換到 Pro 模式
-              card.classList.add('pro-active');
-              contentElement.classList.add('pro');
-              // 將原始提示詞轉換為結構化HTML
-              const promptText = proPrompts[cardTitle];
-              let formattedHTML = '';
-              
-              // 處理提示詞格式化
-              const lines = promptText.split('\n');
-              let currentSection = '';
-              let inList = false;
-              
-              lines.forEach(line => {
-                if (line.includes('角色：') || line.includes('任務：') || line.includes('內容：') || 
-                    line.includes('風格：') || line.includes('格式：')) {
-                  // 如果之前有列表，要先結束列表
-                  if (inList) {
-                    formattedHTML += '</ul>';
-                    inList = false;
-                  }
-                  const [label, content] = line.split('：');
-                  formattedHTML += `<strong>${label}：</strong>${content || ''}`;
-                } else if (line.trim().startsWith('-')) {
-                  // 處理列表項目
-                  if (!inList) {
-                    formattedHTML += '<ul>';
-                    inList = true;
-                  }
-                  formattedHTML += `<li>${line.trim().substring(1).trim()}</li>`;
-                } else if (line.trim() === '') {
-                  // 空行，如果在列表中則結束列表
-                  if (inList) {
-                    formattedHTML += '</ul>';
-                    inList = false;
-                  }
-                  formattedHTML += '<br>';
-                } else {
-                  // 普通文本
-                  if (inList) {
-                    formattedHTML += '</ul>';
-                    inList = false;
-                  }
-                  formattedHTML += line;
+            // Directly activate Pro mode without checking usage count
+            card.classList.add('pro-active');
+            contentElement.classList.add('pro');
+            // 將原始提示詞轉換為結構化HTML
+            const promptText = proPrompts[cardTitle];
+            let formattedHTML = '';
+            
+            // 處理提示詞格式化
+            const lines = promptText.split('\n');
+            let inList = false; // To track if we are currently inside a list
+            
+            lines.forEach(line => {
+              const trimmedLine = line.trim();
+              if (trimmedLine.includes('角色：') || trimmedLine.includes('任務：') || trimmedLine.includes('內容：') || 
+                  trimmedLine.includes('風格：') || trimmedLine.includes('格式：')) {
+                if (inList) {
+                  formattedHTML += '</ul>'; // Close list if active
+                  inList = false;
                 }
-              });
-              
-              // 確保所有標籤都關閉
-              if (inList) {
-                formattedHTML += '</ul>';
+                const [label, ...valueParts] = trimmedLine.split('：');
+                const value = valueParts.join('：').trim();
+                formattedHTML += `<p class="pro-prompt-line"><span class="pro-prompt-label">${label}：</span><span class="pro-prompt-value">${value || ''}</span></p>`;
+              } else if (trimmedLine.startsWith('- ')) {
+                if (!inList) {
+                  formattedHTML += '<ul class="pro-prompt-list">';
+                  inList = true;
+                }
+                formattedHTML += `<li class="pro-prompt-list-item">${trimmedLine.substring(2).trim()}</li>`;
+              } else if (trimmedLine === '') {
+                if (inList) {
+                  formattedHTML += '</ul>'; // Close list if active
+                  inList = false;
+                }
+                formattedHTML += '<p class="pro-prompt-empty-line"></p>';
+              } else {
+                if (inList) {
+                  formattedHTML += '</ul>'; // Close list if active
+                  inList = false;
+                }
+                formattedHTML += `<p class="pro-prompt-paragraph">${line}</p>`;
               }
-              
-              contentElement.querySelector('p').innerHTML = formattedHTML;
+            });
+            
+            // Ensure any open list is closed at the end
+            if (inList) {
+              formattedHTML += '</ul>';
             }
+            
+            contentElement.querySelector('p').innerHTML = formattedHTML;
           }
         });
       }
